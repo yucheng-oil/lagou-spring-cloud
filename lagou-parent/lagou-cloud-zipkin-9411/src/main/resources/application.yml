@@ -1,0 +1,26 @@
+server:
+  port: 9411
+
+spring:
+  application:
+    name: lagou-cloud-zipkin-server   #应用名称，会在Eureka中作为服务的id标识（serviceId）
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/zipkin?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf8&autoReconnect=true&allowMultiQueries=true
+    password: root
+    username: root
+    druid:
+      initialSize: 10
+      minIdle: 10
+      maxActive: 30
+      maxWait: 50000
+# 指定zipkin持久化介质为mysql
+zipkin:
+  storage:
+    type: mysql
+management:
+  metrics:
+    web:
+      server:
+        auto-time-requests: false

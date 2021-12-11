@@ -1,0 +1,67 @@
+
+server:
+  port: 8081
+
+spring:
+  application:
+    name: lagou-service-resume
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/lagou?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf8&autoReconnect=true&allowMultiQueries=true
+    password: root
+    username: root
+  cloud:
+    config:
+      label: master
+      name: lagou-service-resume
+      profile: dev
+      uri: http://localhost:9006
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: guest
+    password: guest
+  zipkin:
+    base-url: http://127.0.0.1:9411 # zipkin server的请求地址
+    sender:
+      # web 客户端将踪迹⽇志数据通过⽹络请求的⽅式传送到服务端，另外还有配置
+      # kafka/rabbit 客户端将踪迹⽇志数据传递到mq进⾏中转
+      type: web
+  sleuth:
+    sampler:
+      # 采样率 1 代表100%全部采集 ，默认0.1 代表10% 的请求踪迹数据会被采集
+      # ⽣产环境下，请求量⾮常⼤，没有必要所有请求的踪迹数据都采集分析，对于⽹络包括server端压⼒都是⽐较⼤的，可以配置采样率采集⼀定⽐例的请求的踪迹数据进⾏分析即可
+      probability: 1
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  mapper-locations: classpath:/mapper/*.xml
+  type-aliases-package: com.lagou.entity
+
+
+#注册到Eureka服务中心
+eureka:
+  client:
+    service-url:
+      defaultZone: http://LagouCloudEurekaServerA:8761/eureka,http://LagouCloudEurekaServerB:8762/eureka
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.cloud.client.ip-address}:${spring.application.name}:${server.port}:@project.version@
+    #自定义Eureka元数据
+    metadata-map:
+      cluster: cl1
+      region: rn1
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+
+#分布式链路追踪
+logging:
+  level:
+    org.springframework.web.servlet.DispatcherServlet: debug
+    org.springframework.cloud.sleuth: debug
